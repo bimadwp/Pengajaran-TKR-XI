@@ -1,0 +1,5 @@
+{
+  "name": "PSPTK Interaktif XI TKR",
+  "description": "Aplikasi pembelajaran interaktif untuk mata pelajaran PSPTK (Pemeliharaan Sasis dan Pemindah Tenaga Kendaraan Ringan) kelas XI TKR di SMK. Aplikasi ini berisi materi per bab, dilengkapi gambar, serta soal latihan interaktif untuk menguji pemahaman siswa.",
+  "requestFramePermissions": []
+}
