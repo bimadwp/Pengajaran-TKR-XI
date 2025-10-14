@@ -39,5 +39,5 @@ export interface Chapter {
 export type View =
   | { name: 'main_menu' }
   | { name: 'chapter'; data: Chapter }
-  | { name: 'quiz'; data: { quiz: Quiz; chapterTitle: string } }
-  | { name: 'result'; data: { score: number; mcqTotal: number, essayTotal: number } };
+  | { name: 'quiz'; data: { quiz: Quiz; chapterTitle: string; chapterId: string } }
+  | { name: 'result'; data: { score: number; mcqTotal: number; chapterId: string } };

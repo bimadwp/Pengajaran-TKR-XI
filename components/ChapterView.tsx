@@ -8,9 +8,11 @@ interface ChapterViewProps {
   chapter: Chapter;
   onStartQuiz: () => void;
   onBack: () => void;
+  isCompleted: boolean;
+  result?: { score: number; mcqTotal: number };
 }
 
-export const ChapterView: React.FC<ChapterViewProps> = ({ chapter, onStartQuiz, onBack }) => {
+export const ChapterView: React.FC<ChapterViewProps> = ({ chapter, onStartQuiz, onBack, isCompleted, result }) => {
   const [aiImages, setAiImages] = useState<{ [key: number]: string | null }>({});
   const [loadingImages, setLoadingImages] = useState<{ [key: number]: boolean }>({});
   const [error, setError] = useState<string | null>(null);
@@ -95,12 +97,19 @@ export const ChapterView: React.FC<ChapterViewProps> = ({ chapter, onStartQuiz, 
         </div>
       </div>
 
-      <footer className="p-6 bg-slate-800/50 flex justify-end">
+      <footer className="p-6 bg-slate-800/50 flex flex-col sm:flex-row justify-end items-center gap-4">
+        {isCompleted && result && (
+          <div className="text-center sm:text-right">
+            <p className="font-semibold text-green-400">Latihan Telah Selesai</p>
+            <p className="text-slate-300">Skor Anda: {result.score} dari {result.mcqTotal} benar</p>
+          </div>
+        )}
         <button
           onClick={onStartQuiz}
-          className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-8 rounded-lg transition-transform transform hover:scale-105"
+          disabled={isCompleted}
+          className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-8 rounded-lg transition-all transform hover:scale-105 disabled:bg-slate-700 disabled:cursor-not-allowed disabled:scale-100"
         >
-          Latihan Bab Ini &rarr;
+          {isCompleted ? 'Selesai Dikerjakan' : 'Latihan Bab Ini →'}
         </button>
       </footer>
     </div>

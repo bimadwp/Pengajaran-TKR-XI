@@ -9,21 +9,32 @@ import type { Chapter, Quiz, View } from './types';
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>({ name: 'main_menu' });
+  const [quizResults, setQuizResults] = useState<Record<string, { score: number; mcqTotal: number }>>({});
 
   const handleSelectChapter = useCallback((chapter: Chapter) => {
     setCurrentView({ name: 'chapter', data: chapter });
   }, []);
 
-  const handleStartQuiz = useCallback((quiz: Quiz, chapterTitle: string) => {
-    setCurrentView({ name: 'quiz', data: { quiz, chapterTitle } });
-  }, []);
+  const handleStartQuiz = useCallback((quiz: Quiz, chapterTitle: string, chapterId: string) => {
+    // Prevent starting quiz if already completed
+    if (quizResults[chapterId]) return;
+    setCurrentView({ name: 'quiz', data: { quiz, chapterTitle, chapterId } });
+  }, [quizResults]);
   
   const handleStartFinalEvaluation = useCallback(() => {
-    setCurrentView({ name: 'quiz', data: { quiz: FINAL_EVALUATION_QUIZ, chapterTitle: 'Evaluasi Akhir' } });
-  }, []);
+    // Prevent starting final evaluation if already completed
+    if (quizResults['final_evaluation']) {
+       // If already taken, just show the result
+       const result = quizResults['final_evaluation'];
+       setCurrentView({ name: 'result', data: { score: result.score, mcqTotal: result.mcqTotal, chapterId: 'final_evaluation' } });
+       return;
+    }
+    setCurrentView({ name: 'quiz', data: { quiz: FINAL_EVALUATION_QUIZ, chapterTitle: 'Evaluasi Akhir', chapterId: 'final_evaluation' } });
+  }, [quizResults]);
 
-  const handleQuizComplete = useCallback((score: number, mcqTotal: number, essayTotal: number) => {
-    setCurrentView({ name: 'result', data: { score, mcqTotal, essayTotal } });
+  const handleQuizComplete = useCallback((score: number, mcqTotal: number, chapterId: string) => {
+    setQuizResults(prev => ({ ...prev, [chapterId]: { score, mcqTotal } }));
+    setCurrentView({ name: 'result', data: { score, mcqTotal, chapterId } });
   }, []);
 
   const handleBackToMenu = useCallback(() => {
@@ -33,11 +44,14 @@ const App: React.FC = () => {
   const renderContent = () => {
     switch (currentView.name) {
       case 'chapter':
+        const chapterResult = quizResults[currentView.data.id];
         return (
           <ChapterView
             chapter={currentView.data}
-            onStartQuiz={() => handleStartQuiz(currentView.data.quiz, currentView.data.title)}
+            onStartQuiz={() => handleStartQuiz(currentView.data.quiz, currentView.data.title, currentView.data.id)}
             onBack={handleBackToMenu}
+            isCompleted={!!chapterResult}
+            result={chapterResult}
           />
         );
       case 'quiz':
@@ -45,7 +59,7 @@ const App: React.FC = () => {
           <QuizView
             quiz={currentView.data.quiz}
             chapterTitle={currentView.data.chapterTitle}
-            onQuizComplete={handleQuizComplete}
+            onQuizComplete={(score, mcqTotal) => handleQuizComplete(score, mcqTotal, currentView.data.chapterId)}
             onBack={handleBackToMenu}
           />
         );
@@ -54,7 +68,6 @@ const App: React.FC = () => {
           <EvaluationResult
             score={currentView.data.score}
             mcqTotal={currentView.data.mcqTotal}
-            essayTotal={currentView.data.essayTotal}
             onBackToMenu={handleBackToMenu}
           />
         );
@@ -65,6 +78,7 @@ const App: React.FC = () => {
             chapters={CHAPTERS}
             onSelectChapter={handleSelectChapter}
             onStartFinalEvaluation={handleStartFinalEvaluation}
+            quizResults={quizResults}
           />
         );
     }

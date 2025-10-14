@@ -1,3 +1,4 @@
+
 import React from 'react';
 import type { Chapter } from '../types';
 import { FinalExamIcon } from './icons';
@@ -6,9 +7,19 @@ interface MainMenuProps {
   chapters: Chapter[];
   onSelectChapter: (chapter: Chapter) => void;
   onStartFinalEvaluation: () => void;
+  quizResults: Record<string, { score: number; mcqTotal: number }>;
 }
 
-export const MainMenu: React.FC<MainMenuProps> = ({ chapters, onSelectChapter, onStartFinalEvaluation }) => {
+const CheckmarkIcon = () => (
+  <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+  </svg>
+);
+
+
+export const MainMenu: React.FC<MainMenuProps> = ({ chapters, onSelectChapter, onStartFinalEvaluation, quizResults }) => {
+  const finalExamResult = quizResults['final_evaluation'];
+  
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
       <header className="text-center mb-10">
@@ -18,29 +29,46 @@ export const MainMenu: React.FC<MainMenuProps> = ({ chapters, onSelectChapter, o
       </header>
       
       <main className="w-full max-w-2xl grid grid-cols-1 md:grid-cols-2 gap-6">
-        {chapters.map((chapter) => (
-          <button
-            key={chapter.id}
-            onClick={() => onSelectChapter(chapter)}
-            className="group bg-slate-800 p-6 rounded-lg shadow-lg hover:bg-slate-700 transition-all duration-300 flex items-center space-x-4 transform hover:-translate-y-1"
-          >
-            <div className="bg-slate-900 p-4 rounded-full">
-              <chapter.icon className="w-8 h-8 text-cyan-400 group-hover:text-cyan-300 transition-colors" />
-            </div>
-            <div>
-              <h2 className="text-xl font-semibold text-left text-white">{chapter.title}</h2>
-              <p className="text-slate-400 text-left">Materi & Latihan</p>
-            </div>
-          </button>
-        ))}
+        {chapters.map((chapter) => {
+          const result = quizResults[chapter.id];
+          return (
+            <button
+              key={chapter.id}
+              onClick={() => onSelectChapter(chapter)}
+              className="group bg-slate-800 p-6 rounded-lg shadow-lg hover:bg-slate-700 transition-all duration-300 flex items-center space-x-4 transform hover:-translate-y-1"
+            >
+              <div className="bg-slate-900 p-4 rounded-full">
+                <chapter.icon className="w-8 h-8 text-cyan-400 group-hover:text-cyan-300 transition-colors" />
+              </div>
+              <div className="flex-grow">
+                <h2 className="text-xl font-semibold text-left text-white">{chapter.title}</h2>
+                {result ? (
+                   <div className="flex items-center space-x-2 mt-1">
+                    <CheckmarkIcon />
+                    <p className="text-green-400 font-semibold">Selesai (Skor: {result.score}/{result.mcqTotal})</p>
+                  </div>
+                ) : (
+                  <p className="text-slate-400 text-left">Materi & Latihan</p>
+                )}
+              </div>
+            </button>
+          );
+        })}
          <button
             onClick={onStartFinalEvaluation}
             className="md:col-span-2 group bg-cyan-600 p-6 rounded-lg shadow-lg hover:bg-cyan-500 transition-all duration-300 flex items-center justify-center space-x-4 transform hover:-translate-y-1"
           >
             <FinalExamIcon className="w-8 h-8 text-white" />
-            <div>
+            <div className="text-left">
               <h2 className="text-xl font-semibold text-white">Evaluasi Akhir</h2>
-              <p className="text-cyan-100">Uji pemahaman semua bab</p>
+              {finalExamResult ? (
+                 <div className="flex items-center space-x-2 mt-1">
+                    <CheckmarkIcon />
+                    <p className="text-cyan-100 font-semibold">Selesai (Skor: {finalExamResult.score}/{finalExamResult.mcqTotal})</p>
+                  </div>
+              ) : (
+                <p className="text-cyan-100">Uji pemahaman semua bab</p>
+              )}
             </div>
           </button>
       </main>

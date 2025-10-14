@@ -5,11 +5,10 @@ import { CertificateIcon } from './icons';
 interface EvaluationResultProps {
   score: number;
   mcqTotal: number;
-  essayTotal: number;
   onBackToMenu: () => void;
 }
 
-export const EvaluationResult: React.FC<EvaluationResultProps> = ({ score, mcqTotal, essayTotal, onBackToMenu }) => {
+export const EvaluationResult: React.FC<EvaluationResultProps> = ({ score, mcqTotal, onBackToMenu }) => {
   const percentage = mcqTotal > 0 ? Math.round((score / mcqTotal) * 100) : 0;
   const isPassing = percentage >= 75;
 
@@ -32,30 +31,15 @@ export const EvaluationResult: React.FC<EvaluationResultProps> = ({ score, mcqTo
           <p className="text-slate-300 mt-2">{feedback.message}</p>
         </div>
         
-        <div className="bg-slate-900/50 rounded-lg p-6 my-8 text-left divide-y divide-slate-700">
-          {mcqTotal > 0 && (
-            <div className="py-4">
-              <div className="flex justify-between items-center">
-                <p className="text-slate-400 text-lg">Skor Pilihan Ganda</p>
-                <p className="text-4xl font-bold text-cyan-400">{percentage}%</p>
-              </div>
-              <p className="text-slate-300 font-medium mt-1">({score} dari {mcqTotal} soal benar)</p>
+        <div className="bg-slate-900/50 rounded-lg p-6 my-8 text-left">
+          <div className="py-4">
+            <div className="flex justify-between items-center">
+              <p className="text-slate-400 text-lg">Skor Akhir</p>
+              <p className="text-4xl font-bold text-cyan-400">{percentage}%</p>
             </div>
-          )}
-
-          {essayTotal > 0 && (
-            <div className="py-4">
-              <p className="text-slate-400 text-lg">Soal Esai</p>
-              <p className="text-slate-300 font-medium mt-1">{essayTotal} soal esai menunggu penilaian.</p>
-              <div className="mt-3 bg-yellow-900/30 border border-yellow-700 text-yellow-300 text-sm p-3 rounded-md">
-                <p>
-                  Jawaban esai tidak dinilai secara otomatis. Silakan konsultasikan dengan instruktur Anda untuk penilaian.
-                </p>
-              </div>
-            </div>
-          )}
+            <p className="text-slate-300 font-medium mt-1">({score} dari {mcqTotal} soal benar)</p>
+          </div>
         </div>
-
 
         {isPassing && (
           <div className="flex flex-col items-center p-4 bg-green-900/30 rounded-lg border border-green-700">

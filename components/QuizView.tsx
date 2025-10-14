@@ -6,7 +6,7 @@ import { QuestionType } from '../types';
 interface QuizViewProps {
   quiz: Quiz;
   chapterTitle: string;
-  onQuizComplete: (score: number, mcqTotal: number, essayTotal: number) => void;
+  onQuizComplete: (score: number, mcqTotal: number) => void;
   onBack: () => void;
 }
 
@@ -17,9 +17,7 @@ export const QuizView: React.FC<QuizViewProps> = ({ quiz, chapterTitle, onQuizCo
   const [score, setScore] = useState(0);
 
   const currentQuestion = quiz.questions[currentQuestionIndex];
-  const isMultipleChoice = currentQuestion.type === QuestionType.MULTIPLE_CHOICE;
-  const mcqQuestionsCount = quiz.questions.filter(q => q.type === QuestionType.MULTIPLE_CHOICE).length;
-  const essayQuestionsCount = quiz.questions.filter(q => q.type === QuestionType.ESSAY).length;
+  const mcqQuestionsCount = quiz.questions.length;
 
   const handleAnswerSelect = (answerIndex: number) => {
     if (isAnswered) return;
@@ -27,7 +25,7 @@ export const QuizView: React.FC<QuizViewProps> = ({ quiz, chapterTitle, onQuizCo
     setSelectedAnswer(answerIndex);
     setIsAnswered(true);
 
-    if (isMultipleChoice && answerIndex === currentQuestion.correctAnswerIndex) {
+    if (answerIndex === currentQuestion.correctAnswerIndex) {
       setScore(prevScore => prevScore + 1);
     }
   };
@@ -38,7 +36,7 @@ export const QuizView: React.FC<QuizViewProps> = ({ quiz, chapterTitle, onQuizCo
       setSelectedAnswer(null);
       setIsAnswered(false);
     } else {
-      onQuizComplete(score, mcqQuestionsCount, essayQuestionsCount);
+      onQuizComplete(score, mcqQuestionsCount);
     }
   };
 
@@ -72,38 +70,26 @@ export const QuizView: React.FC<QuizViewProps> = ({ quiz, chapterTitle, onQuizCo
           <p className="text-lg font-semibold text-slate-300">
             Soal {currentQuestionIndex + 1} dari {quiz.questions.length}
           </p>
-          {mcqQuestionsCount > 0 && <p className="text-sm font-mono bg-slate-900 px-3 py-1 rounded-full text-cyan-300">Skor: {score}</p>}
+          <p className="text-sm font-mono bg-slate-900 px-3 py-1 rounded-full text-cyan-300">Skor: {score}</p>
         </div>
         <p className="text-xl text-white bg-slate-900/50 p-4 rounded-lg min-h-[100px] flex items-center">
           {currentQuestion.text}
         </p>
       </div>
       
-      {isMultipleChoice ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-          {currentQuestion.options?.map((option: AnswerOption, index: number) => (
-            <button
-              key={index}
-              onClick={() => handleAnswerSelect(index)}
-              disabled={isAnswered}
-              className={`w-full p-4 rounded-lg text-left transition-all duration-300 text-white font-medium ${getButtonClass(index)} ${isAnswered ? 'cursor-not-allowed' : 'transform hover:scale-105'}`}
-            >
-              <span className="font-mono mr-3">{String.fromCharCode(97 + index)}.</span>
-              {option.text}
-            </button>
-          ))}
-        </div>
-      ) : (
-        <div className="mb-6">
-          <textarea
-            rows={5}
-            className="w-full bg-slate-900 p-4 rounded-lg text-white border-2 border-slate-700 focus:border-cyan-500 focus:ring-cyan-500 transition-colors"
-            placeholder="Ketik jawaban Anda di sini..."
-            onFocus={() => setIsAnswered(true)} // Consider essay answered on focus
-          ></textarea>
-           <p className="text-xs text-slate-500 mt-2">Jawaban esai tidak dinilai secara otomatis.</p>
-        </div>
-      )}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+        {currentQuestion.options?.map((option: AnswerOption, index: number) => (
+          <button
+            key={index}
+            onClick={() => handleAnswerSelect(index)}
+            disabled={isAnswered}
+            className={`w-full p-4 rounded-lg text-left transition-all duration-300 text-white font-medium ${getButtonClass(index)} ${isAnswered ? 'cursor-not-allowed' : 'transform hover:scale-105'}`}
+          >
+            <span className="font-mono mr-3">{String.fromCharCode(97 + index)}.</span>
+            {option.text}
+          </button>
+        ))}
+      </div>
       
       {isAnswered && (
         <div className="text-right">
